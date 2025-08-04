@@ -76,9 +76,10 @@ def graph(mask_folder, pixels, output_path):
     file_list = sorted(glob.glob(os.path.join(mask_folder, '*'))) 
     file1 = Path(file_list[0]).stem 
     lastfile = Path(file_list[-1]).stem 
+    days = [f'Day {i+1}' for i in range(len(pixels))]
     plt.figure(figsize=(10, 5))
-    plt.plot(range(len(pixels)), pixels, marker='o')
-    plt.xlabel(f"{file1} - {lastfile}")
+    plt.plot(days, pixels, marker='o')
+    plt.xlabel(f"{file1.split('_mask')[0]} - {lastfile.split('_mask')[0]}")
     plt.ylabel("Plant Pixel Count")
     plt.title("Plant Area")
     plt.grid(True)

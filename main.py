@@ -5,7 +5,7 @@ import tempfile
 import shutil
 import zipfile
 import cv2
-from your_code import *
+from backend import *
 from PIL import Image
 import threading
 # ui.markdown("## 🌱 **Hydroponic System Analysis**")
@@ -232,58 +232,35 @@ def process_masking():
     finally:
         shutil.rmtree(temp_input, ignore_errors=True)
 
-
-def run_mask(input_folder, output_zip_path):
-    # ui.notify(f"[MASK] Running on folder: {input_folder}")
-    count = 0
-    output_folder = os.path.join(tempfile.gettempdir(), "masks")
-    os.makedirs(output_folder, exist_ok=True)
-
-    image_extensions = ['*.png', '*.jpg', '*.jpeg']
-    image_files = []
-    for ext in image_extensions:
-        image_files.extend(glob.glob(os.path.join(input_folder, ext)))
-
-    for file in image_files:
-        img = cv2.imread(file)
-        hsv_image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-
-        lower_brown = np.array([10, 100, 20])
-        upper_brown = np.array([20, 255, 200])
-        lower_black = np.array([0, 0, 0])
-        upper_black = np.array([180, 255, 50])
-        lower_black2 = np.array([100, 59, 20])
-        upper_black2 = np.array([123, 140, 236])
-
-        black_mask = cv2.inRange(hsv_image, lower_black, upper_black)
-        black2_mask = cv2.inRange(hsv_image, lower_black2, upper_black2)
-        brown_mask = cv2.inRange(hsv_image, lower_brown, upper_brown)
-
-        combined_mask = black2_mask | black_mask | brown_mask
-        inverted_mask = cv2.bitwise_not(combined_mask)
-
-        kernel = np.ones((3, 3), np.uint8)
-        for i in range(4):
-            if i == 0:
-                eroded = cv2.erode(inverted_mask.copy(), kernel, iterations=i + 1)
-            else:
-                eroded = cv2.erode(dilated.copy(), kernel, iterations=i + 1)
-            dilated = cv2.dilate(eroded.copy(), kernel, iterations=i + 1)
-        filename = Path(file).stem 
-        output_image_path = os.path.join(output_folder, f"{filename}_mask.png")
-        cv2.imwrite(output_image_path, eroded)
-        count += 1
-
-    zip_path = os.path.join(output_zip_path, "masks.zip")
-    with zipfile.ZipFile(zip_path, "w") as zipf:
-        for fname in os.listdir(output_folder):
-            fpath = os.path.join(output_folder, fname)
-            zipf.write(fpath, arcname=fname)
-
-    ui.notify(f"✅ Masking complete! Zip saved to: {zip_path}")
-    shutil.rmtree(output_folder)
-    return zip_path
 ######GROWTH WORKING******
+def process_growth():
+    if not uploaded_file_paths:
+        ui.notify("Please upload BINARY images first.", type="warning")
+        return
+
+    temp_input = tempfile.mkdtemp()
+    try:
+        # Copy files to temp folder
+        for file_path in uploaded_file_paths:
+            filename = os.path.basename(file_path)
+            dest_path = os.path.join(temp_input, filename)
+            shutil.copy2(file_path, dest_path)
+
+        print("[MASK] Starting run_mask()")
+        zip_path = run_graph(temp_input, tempfile.gettempdir())
+
+        if os.path.exists(zip_path):
+            ui.download(zip_path, filename="graphs.zip")
+            ui.notify("✅ Graphs ready for download!")
+        else:
+            ui.notify("❌ Graphing failed: No ZIP file found.", type="warning")
+
+    except Exception as e:
+        print(f"[GRAPH] Error: {e}")
+        ui.notify(f"❌ Graphing failed: {e}", type="warning")
+    finally:
+        shutil.rmtree(temp_input, ignore_errors=True)
+
 ###### GROWTH NOT WORKING #####
 def downscale_image(path: Path, max_size=(800, 800)):
     with Image.open(path) as img:
@@ -345,8 +322,7 @@ def threaded_growth(uploaded_files, mask_dir, zip_output_path, on_success, on_fa
         shutil.rmtree(temp_input_dir, ignore_errors=True)
         shutil.rmtree(growth_output_dir, ignore_errors=True)
 
-
-async def process_growth():
+async def process_growth_BAD():
     if not uploaded_file_paths:
         ui.notify("⚠️ Please upload images first.", type="warning")
         return
@@ -386,8 +362,8 @@ def main_page():
     with ui.row():
         ui.button("Make Masks", on_click=process_masking)
         #download_button = ui.button("Download Masks", on_click=lambda: ui.download(mask_zip_path)).props("disabled")
-    # with ui.row():
-    #     ui.button("Run Growth Analysis", on_click=)
+    with ui.row():
+        ui.button("Run Growth Analysis", on_click=process_growth)
     with ui.row():
         ui.button("BAD Run Growth Analysis", on_click=show_mask_uploader)
     # container that gets updated by show_first_image()

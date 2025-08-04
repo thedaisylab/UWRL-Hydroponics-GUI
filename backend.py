@@ -10,9 +10,10 @@ from pathlib import Path
 from plantcv.parallel import WorkflowInputs
 from plantcv import plantcv as pcv
 from PIL import Image
-import imageio.v3 as iio
 import zipfile
-
+import tempfile
+import shutil
+##### BAD GROWTH #######
 def zip_output_folder(folder: Path, zip_path: Path):
     with zipfile.ZipFile(zip_path, 'w') as zipf:
         for file in folder.rglob('*'):
@@ -195,6 +196,7 @@ def run_growth(folder, mask_folder, growth_sess,output_folder):
         plt.clf()
     zip_output_folder(Path(growth_sess), Path(output_folder))
 
+##### TIMELAPSE #######
 def run_timelapse(folder, output_path, fps=2.0, size=(1280, 720)):
     image_files = sorted([
         os.path.join(folder, f)
@@ -233,7 +235,9 @@ def run_timelapse(folder, output_path, fps=2.0, size=(1280, 720)):
         ui.notify(f"[❌] Failed to write video: {e}")
         return False
 
+##### CROPPING #######
 def run_cropping(input_folder, output_folder, roi):
+
     os.makedirs(output_folder, exist_ok=True)
     x, y, w, h = roi
 
@@ -254,3 +258,131 @@ def run_cropping(input_folder, output_folder, roi):
         output_path = os.path.join(output_folder, filename)
         cv2.imwrite(output_path, cropped)
         print(f"✅ Cropped and saved: {filename}")
+
+##### MASKING #######
+def run_mask(input_folder, output_zip_path):
+    # ui.notify(f"[MASK] Running on folder: {input_folder}")
+    count = 0
+    output_folder = os.path.join(tempfile.gettempdir(), "masks")
+    os.makedirs(output_folder, exist_ok=True)
+
+    image_extensions = ['*.png', '*.jpg', '*.jpeg']
+    image_files = []
+    for ext in image_extensions:
+        image_files.extend(glob.glob(os.path.join(input_folder, ext)))
+
+    for file in image_files:
+        img = cv2.imread(file)
+        hsv_image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+        lower_brown = np.array([10, 100, 20])
+        upper_brown = np.array([20, 255, 200])
+        lower_black = np.array([0, 0, 0])
+        upper_black = np.array([180, 255, 50])
+        lower_black2 = np.array([100, 59, 20])
+        upper_black2 = np.array([123, 140, 236])
+
+        black_mask = cv2.inRange(hsv_image, lower_black, upper_black)
+        black2_mask = cv2.inRange(hsv_image, lower_black2, upper_black2)
+        brown_mask = cv2.inRange(hsv_image, lower_brown, upper_brown)
+
+        combined_mask = black2_mask | black_mask | brown_mask
+        inverted_mask = cv2.bitwise_not(combined_mask)
+
+        kernel = np.ones((3, 3), np.uint8)
+        for i in range(4):
+            if i == 0:
+                eroded = cv2.erode(inverted_mask.copy(), kernel, iterations=i + 1)
+            else:
+                eroded = cv2.erode(dilated.copy(), kernel, iterations=i + 1)
+            dilated = cv2.dilate(eroded.copy(), kernel, iterations=i + 1)
+        filename = Path(file).stem 
+        output_image_path = os.path.join(output_folder, f"{filename}_mask.png")
+        cv2.imwrite(output_image_path, eroded)
+        count += 1
+
+    zip_path = os.path.join(output_zip_path, "masks.zip")
+    with zipfile.ZipFile(zip_path, "w") as zipf:
+        for fname in os.listdir(output_folder):
+            fpath = os.path.join(output_folder, fname)
+            zipf.write(fpath, arcname=fname)
+
+    ui.notify(f"✅ Masking complete! Zip saved to: {zip_path}")
+    shutil.rmtree(output_folder)
+    return zip_path
+
+def fill_holes2(binary_image):
+    h, w = binary_image.shape[:2]
+    mask = np.zeros((h+2, w+2), np.uint8)
+    cv2.floodFill(255*binary_image.astype(np.uint8), mask, (0,0), 255);
+    mask = cv2.bitwise_not(mask)
+    return mask
+
+def get_largest_blobs(binary_image, num_blobs):
+
+    #find connected components 
+    binary_image = binary_image.astype(np.uint8)
+    num_comps, output, stats, centroids = cv2.connectedComponentsWithStats(binary_image, connectivity=8)
+  
+    sizes = stats[1:, -1]; nb_components = num_comps - 1
+   
+    blob_indices = np.argsort(sizes)[::-1][0:num_blobs]
+  
+    aggregate_img = np.zeros((binary_image.shape[0], binary_image.shape[1],num_blobs))
+
+    centroid_list = centroids[blob_indices+1]
+    for i in range(num_blobs):
+        img2 = np.zeros((output.shape))
+        img2[output == blob_indices[i]+1] = 255
+        img2 = fill_holes2(img2) == 255
+        aggregate_img[:,:,i] = img2[:-2,:-2]
+    return aggregate_img, centroid_list
+
+def pixlCount(mask_folder):
+    pixel_count_list = []
+    file_list = sorted(glob.glob(os.path.join(mask_folder, '*'))) 
+    for file in file_list:
+        binary_image = cv2.imread(file, cv2.IMREAD_UNCHANGED)
+        aggregate_img, cen = get_largest_blobs(binary_image,1)
+        per_blob_counts = np.count_nonzero(aggregate_img[:, :, 0])
+        pixel_count_list.append(per_blob_counts)
+    return pixel_count_list    
+
+def graph(mask_folder, pixels, output_path):
+    file_list = sorted(glob.glob(os.path.join(mask_folder, '*'))) 
+    file1 = Path(file_list[0]).stem 
+    lastfile = Path(file_list[-1]).stem 
+    days = [f'Day {i+1}' for i in range(len(pixels))]
+    plt.figure(figsize=(10, 5))
+    plt.plot(days, pixels, marker='o')
+    plt.xlabel(f"{file1.split('_mask')[0]} - {lastfile.split('_mask')[0]}")
+    plt.ylabel("Plant Pixel Count")
+    plt.title("Plant Area")
+    plt.grid(True)
+    plt.tight_layout()
+
+    # Save the figure
+    output_path = Path(output_path)
+    plt.savefig(output_path)
+    plt.close()  # Close the figure to free memory
+    return output_path
+
+
+def run_graph(input_folder, output_zip_path):
+    # ui.notify(f"[MASK] Running on folder: {input_folder}")
+    count = 0
+    output_folder = os.path.join(tempfile.gettempdir(), "graphs")
+    os.makedirs(output_folder, exist_ok=True)
+
+    pixels = pixlCount(input_folder)
+    output_image_path = os.path.join(output_folder, "growth_plot.png")
+    output_file = graph(input_folder,pixels, output_image_path)
+    zip_path = os.path.join(output_file, "graphs.zip")
+    with zipfile.ZipFile(zip_path, "w") as zipf:
+        for fname in os.listdir(output_folder):
+            fpath = os.path.join(output_folder, fname)
+            zipf.write(fpath, arcname=fname)
+
+    ui.notify(f"✅ Masking complete! Zip saved to: {zip_path}")
+    shutil.rmtree(output_folder)
+    return zip_path
