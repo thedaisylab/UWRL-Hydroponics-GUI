@@ -1,5 +1,9 @@
 import cv2
 import numpy as np
+import glob
+import os
+import matplotlib.pyplot as plt
+from pathlib import Path
 def remove_small_objects(binary_image, min_size = 2000):
 
     #find all your connected components (white blobs in your image)
@@ -56,3 +60,39 @@ def get_largest_blobs(binary_image, num_blobs):
         img2 = fill_holes2(img2) == 255
         aggregate_img[:,:,i] = img2[:-2,:-2]
     return aggregate_img, centroid_list
+
+
+def pixlCount(mask_folder):
+    pixel_count_list = []
+    file_list = sorted(glob.glob(os.path.join(mask_folder, '*'))) 
+    for file in file_list:
+        binary_image = cv2.imread(file, cv2.IMREAD_UNCHANGED)
+        aggregate_img, cen = get_largest_blobs(binary_image,1)
+        per_blob_counts = np.count_nonzero(aggregate_img[:, :, 0])
+        pixel_count_list.append(per_blob_counts)
+    return pixel_count_list    
+
+def graph(mask_folder, pixels, output_path):
+    file_list = sorted(glob.glob(os.path.join(mask_folder, '*'))) 
+    file1 = file_list[0]
+    lastfile = file_list[-1]
+    plt.figure(figsize=(10, 5))
+    plt.plot(range(len(pixels)), pixels, marker='o')
+    plt.xlabel(f"{file1} - {lastfile}")
+    plt.ylabel("Plant Pixel Count")
+    plt.title("Plant Area")
+    plt.grid(True)
+    plt.tight_layout()
+
+    # Save the figure
+    output_path = Path(output_path)
+    plt.savefig(output_path)
+    plt.close()  # Close the figure to free memory
+    return output_path
+
+def main():
+    pixels = pixlCount('/Users/arianne/Desktop/masks2')
+    output_file = graph('/Users/arianne/Desktop/masks2',pixels, '/Users/arianne/Desktop/growth_plot.png')
+    print(f"Graph saved to: {output_file}")
+
+main()

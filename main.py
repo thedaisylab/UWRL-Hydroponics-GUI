@@ -270,7 +270,7 @@ def run_mask(input_folder, output_zip_path):
                 eroded = cv2.erode(dilated.copy(), kernel, iterations=i + 1)
             dilated = cv2.dilate(eroded.copy(), kernel, iterations=i + 1)
 
-        output_image_path = os.path.join(output_folder, f"mask{count}.png")
+        output_image_path = os.path.join(output_folder, f"{file}_{count}.png")
         cv2.imwrite(output_image_path, eroded)
         count += 1
 
