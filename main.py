@@ -62,9 +62,9 @@ def update_file_list_display():
     file_list_column.clear()
     with file_list_column:
         for f in uploaded_file_paths:
-            ui.label(Path(f).name)
+            print(Path(f).name)
         for f in uploaded_mask_paths:
-            ui.label(Path(f).name)
+            print(Path(f).name)
 def handle_upload(e):
     # uploaded_files.clear()
     uploaded_file_paths.append(e)
