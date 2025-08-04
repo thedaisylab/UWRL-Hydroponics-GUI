@@ -283,7 +283,8 @@ def run_mask(input_folder, output_zip_path):
     ui.notify(f"✅ Masking complete! Zip saved to: {zip_path}")
     shutil.rmtree(output_folder)
     return zip_path
-###### GROWTH #####
+######GROWTH WORKING******
+###### GROWTH NOT WORKING #####
 def downscale_image(path: Path, max_size=(800, 800)):
     with Image.open(path) as img:
         img.thumbnail(max_size)
@@ -385,9 +386,10 @@ def main_page():
     with ui.row():
         ui.button("Make Masks", on_click=process_masking)
         #download_button = ui.button("Download Masks", on_click=lambda: ui.download(mask_zip_path)).props("disabled")
-
+    # with ui.row():
+    #     ui.button("Run Growth Analysis", on_click=)
     with ui.row():
-        ui.button("Run Growth Analysis", on_click=show_mask_uploader)
+        ui.button("BAD Run Growth Analysis", on_click=show_mask_uploader)
     # container that gets updated by show_first_image()
     # image_container
 main_page()    
