@@ -310,7 +310,7 @@ def run_mask(input_folder, output_zip_path):
     ui.notify(f"✅ Masking complete! Zip saved to: {zip_path}")
     shutil.rmtree(output_folder)
     return zip_path
-failed: [Errno 20] Not a directory: '/tmp/graphs/growth_plot.png/graphs.zip'
+
 
 def fill_holes2(binary_image):
     h, w = binary_image.shape[:2]
