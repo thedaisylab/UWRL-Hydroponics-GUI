@@ -366,19 +366,17 @@ def graph(mask_folder, pixels, output_path):
     output_path = Path(output_path)
     plt.savefig(output_path)
     plt.close()  # Close the figure to free memory
-    return output_path
 
 
-def run_graph(input_folder, output_zip_path):
-    # ui.notify(f"[MASK] Running on folder: {input_folder}")
-    count = 0
-    output_folder = os.path.join(tempfile.gettempdir(), "graphs")
+def run_graph(input_folder, output_zip_base):
+    output_folder = tempfile.mkdtemp(prefix="graphs_")
     os.makedirs(output_folder, exist_ok=True)
 
     pixels = pixlCount(input_folder)
     output_image_path = os.path.join(output_folder, "growth_plot.png")
-    graph(input_folder,pixels, output_image_path)
-    zip_path = os.path.join(output_zip_path, "graphs.zip")
+    graph(input_folder, pixels, output_image_path)
+
+    zip_path = os.path.join(output_zip_base, "graphs.zip")
     with zipfile.ZipFile(zip_path, "w") as zipf:
         for fname in os.listdir(output_folder):
             fpath = os.path.join(output_folder, fname)
