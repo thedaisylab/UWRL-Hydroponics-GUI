@@ -74,8 +74,8 @@ def pixlCount(mask_folder):
 
 def graph(mask_folder, pixels, output_path):
     file_list = sorted(glob.glob(os.path.join(mask_folder, '*'))) 
-    file1 = file_list[0]
-    lastfile = file_list[-1]
+    file1 = Path(file_list[0]).stem 
+    lastfile = Path(file_list[-1]).stem 
     plt.figure(figsize=(10, 5))
     plt.plot(range(len(pixels)), pixels, marker='o')
     plt.xlabel(f"{file1} - {lastfile}")
@@ -91,8 +91,8 @@ def graph(mask_folder, pixels, output_path):
     return output_path
 
 def main():
-    pixels = pixlCount('/Users/arianne/Desktop/masks2')
-    output_file = graph('/Users/arianne/Desktop/masks2',pixels, '/Users/arianne/Desktop/growth_plot.png')
+    pixels = pixlCount('/Users/arianne/Desktop/masks (1)')
+    output_file = graph('/Users/arianne/Desktop/masks (1)',pixels, '/Users/arianne/Desktop/growth_plot.png')
     print(f"Graph saved to: {output_file}")
 
 main()
