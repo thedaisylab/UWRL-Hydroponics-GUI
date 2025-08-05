@@ -370,7 +370,7 @@ def graph(mask_folder, pixels, output_path):
 
 def run_graph(input_folder):
     output_folder = tempfile.mkdtemp(prefix="graph_")
-
+    os.makedirs(output_folder, exist_ok=True)
     pixels = pixlCount(input_folder)
     output_image_path = os.path.join(output_folder, "growth_plot.png")
     os.makedirs(os.path.dirname(output_image_path), exist_ok=True)
