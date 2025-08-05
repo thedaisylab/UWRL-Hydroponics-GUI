@@ -248,7 +248,7 @@ def process_growth():
 
         print("[MASK] Starting run_mask()")
         img_path = run_graph(temp_input)
-
+        
         if os.path.exists(img_path):
             ui.download(img_path, filename="growth_plot.png")
             ui.notify("✅ Growth plot ready for download!")

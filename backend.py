@@ -373,6 +373,8 @@ def run_graph(input_folder):
 
     pixels = pixlCount(input_folder)
     output_image_path = os.path.join(output_folder, "growth_plot.png")
+    os.makedirs(os.path.dirname(output_image_path), exist_ok=True)
+
     graph(input_folder, pixels, output_image_path)
 
     ui.notify(f"✅ Masking complete! Image saved to: {output_image_path}")
