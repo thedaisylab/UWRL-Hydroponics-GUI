@@ -367,16 +367,13 @@ def graph(mask_folder, pixels, output_path):
     plt.savefig(output_path)
     plt.close()  # Close the figure to free memory
 
-
 def run_graph(input_folder):
-    output_folder = tempfile.mkdtemp(prefix="graph_")
-    os.makedirs(output_folder, exist_ok=True)
+    output_folder = tempfile.mkdtemp(prefix="graph_")  # keep this folder alive for now
     pixels = pixlCount(input_folder)
     output_image_path = os.path.join(output_folder, "growth_plot.png")
-    os.makedirs(os.path.dirname(output_image_path), exist_ok=True)
 
     graph(input_folder, pixels, output_image_path)
 
-    ui.notify(f"✅ Masking complete! Image saved to: {output_image_path}")
-    shutil.rmtree(output_folder)
-    return output_image_path
+    ui.notify(f"✅ Graph complete! Image saved to: {output_image_path}")
+    return output_image_path, output_folder  # return both so we can clean up later
+

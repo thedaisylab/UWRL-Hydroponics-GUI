@@ -246,20 +246,23 @@ def process_growth():
             dest_path = os.path.join(temp_input, filename)
             shutil.copy2(file_path, dest_path)
 
-        print("[MASK] Starting run_mask()")
-        img_path = run_graph(temp_input)
-        
-        if os.path.exists(img_path):
-            ui.download(img_path, filename="growth_plot.png")
-            ui.notify("✅ Growth plot ready for download!")
+        print("[GRAPH] Starting run_graph()")
+        image_path, output_dir = run_graph(temp_input)
+
+        if os.path.exists(image_path):
+            ui.image(image_path)
+            ui.notify("✅ Graph image ready!")
         else:
             ui.notify("❌ Graphing failed: No image found.", type="warning")
 
     except Exception as e:
         print(f"[GRAPH] Error: {e}")
         ui.notify(f"❌ Graphing failed: {e}", type="warning")
+
     finally:
         shutil.rmtree(temp_input, ignore_errors=True)
+        shutil.rmtree(output_dir, ignore_errors=True)  # <-- clean this up AFTER displaying the image
+
 
 ###### GROWTH NOT WORKING #####
 def downscale_image(path: Path, max_size=(800, 800)):
