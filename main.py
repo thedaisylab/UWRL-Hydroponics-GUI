@@ -362,13 +362,13 @@ def main_page():
         with ui.column():
             uploader =ui.upload(on_upload=save_uploaded_file, multiple=True)
         with ui.column():
-             ui.label('CROP: Pick four points to crop all images (zip)')
-        with ui.column():    
-             ui.label('TIMELAPSE: Makes timelapse of images uploaded (.mov)')
-        with ui.column():    
-             ui.label('MASKS: Makes black and white versions of images (zip)')     
-        with ui.column():    
-             ui.label('GROWTH: Crop to single plant, upload masks of plants, makes chart (zip)')
+            ui.label('CROP: Pick four points to crop all images (zip)')
+            with ui.row():    
+                ui.label('TIMELAPSE: Makes timelapse of images uploaded (.mov)')
+            with ui.row():    
+                ui.label('MASKS: Makes black and white versions of images (zip)')     
+            with ui.row():    
+                ui.label('GROWTH: Crop to single plant, upload masks of plants, makes chart (zip)')
     update_file_list_display()
     with ui.row():
         ui.button("Crop and Download ZIP", on_click=process_images)
