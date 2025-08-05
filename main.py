@@ -246,24 +246,20 @@ def process_growth():
             dest_path = os.path.join(temp_input, filename)
             shutil.copy2(file_path, dest_path)
 
-        print("[GRAPH] Starting run_graph()")
-        image_path, output_dir = run_graph(temp_input)
+        print("[MASK] Starting run_mask()")
+        zip_path = run_graph(temp_input, tempfile.gettempdir())
 
-        if os.path.exists(image_path):
-            ui.image(image_path)
-            ui.notify("✅ Graph image ready!")
+        if os.path.exists(zip_path):
+            ui.download(zip_path, filename="graphs.zip")
+            ui.notify("✅ Graphs ready for download!")
         else:
-            ui.notify("❌ Graphing failed: No image found.", type="warning")
+            ui.notify("❌ Graphing failed: No ZIP file found.", type="warning")
 
     except Exception as e:
         print(f"[GRAPH] Error: {e}")
         ui.notify(f"❌ Graphing failed: {e}", type="warning")
-
     finally:
         shutil.rmtree(temp_input, ignore_errors=True)
-        shutil.rmtree(output_dir, ignore_errors=True)  # <-- clean this up AFTER displaying the image
-
-
 ###### GROWTH NOT WORKING #####
 def downscale_image(path: Path, max_size=(800, 800)):
     with Image.open(path) as img:
@@ -353,6 +349,13 @@ async def process_growth_BAD():
 def main_page():
     global mask_uploader, run_analysis_button
     ui.markdown("## 🌱 **Hydroponic System Analysis**")
+    ui.table(rows=[
+    {'INSTRUCTIONS': 'Upload images using ➕ '},
+    {'INSTRUCTIONS': 'Save using \u2601\uFE0F'},
+    {'INSTRUCTIONS': 'Press button to run'},
+    {'INSTRUCTIONS': 'Reload to restart!'},
+])
+
     with ui.row():
         uploader =ui.upload(on_upload=save_uploaded_file, multiple=True)
     
