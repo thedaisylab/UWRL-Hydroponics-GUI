@@ -351,7 +351,12 @@ def main_page():
     with ui.row():
         with ui.column():
             ui.markdown("## 🌱 **Hydroponic System Analysis**")
-
+            ui.table(rows=[
+                {'INSTRUCTIONS': 'Upload images using ➕'},
+                {'INSTRUCTIONS': 'Save using ☁️'},
+                {'INSTRUCTIONS': 'Press button to run'},
+                {'INSTRUCTIONS': 'Reload to restart!'},
+            ])
         with ui.column():
             ui.table(rows=[
                 {'INSTRUCTIONS': 'Upload images using ➕'},
