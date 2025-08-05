@@ -247,13 +247,13 @@ def process_growth():
             shutil.copy2(file_path, dest_path)
 
         print("[MASK] Starting run_mask()")
-        zip_path = run_graph(temp_input, tempfile.gettempdir())
+        img_path = run_graph(temp_input)
 
-        if os.path.exists(zip_path):
-            ui.download(zip_path, filename="graphs.zip")
-            ui.notify("✅ Graphs ready for download!")
+        if os.path.exists(img_path):
+            ui.download(img_path, filename="growth_plot.png")
+            ui.notify("✅ Growth plot ready for download!")
         else:
-            ui.notify("❌ Graphing failed: No ZIP file found.", type="warning")
+            ui.notify("❌ Graphing failed: No image found.", type="warning")
 
     except Exception as e:
         print(f"[GRAPH] Error: {e}")
@@ -361,12 +361,9 @@ def main_page():
     ui.button("Create Timelapse", on_click=process_timelapse)
     with ui.row():
         ui.button("Make Masks", on_click=process_masking)
-        #download_button = ui.button("Download Masks", on_click=lambda: ui.download(mask_zip_path)).props("disabled")
     with ui.row():
         ui.button("Run Growth Analysis", on_click=process_growth)
-    with ui.row():
-        ui.button("BAD Run Growth Analysis", on_click=show_mask_uploader)
-    # container that gets updated by show_first_image()
-    # image_container
+    # with ui.row():
+    #     ui.button("BAD Run Growth Analysis", on_click=show_mask_uploader)
 main_page()    
 ui.run()
