@@ -363,7 +363,7 @@ def main_page():
             uploader =ui.upload(on_upload=save_uploaded_file, multiple=True)
         with ui.column():
              ui.table(rows=[
-                {'BUTTONS': 'CROP:Pick four points to crop all images (zip)'},
+                {'BUTTONS': 'CROP: Pick four points to crop all images (zip)'},
                 {'BUTTONS': 'TIMELAPSE: Makes timelapse of images uploaded (.mov)'},
                 {'BUTTONS': 'MASKS: Makes black and white versions of images (zip)'},
                 {'BUTTONS': 'GROWTH: Crop to single plant, upload masks of plants, makes chart (zip)'},
