@@ -348,14 +348,17 @@ async def process_growth_BAD():
 ###### MAIN ########
 def main_page():
     global mask_uploader, run_analysis_button
-    ui.markdown("## 🌱 **Hydroponic System Analysis**")
-    ui.table(rows=[
-    {'INSTRUCTIONS': 'Upload images using ➕ '},
-    {'INSTRUCTIONS': 'Save using \u2601\uFE0F'},
-    {'INSTRUCTIONS': 'Press button to run'},
-    {'INSTRUCTIONS': 'Reload to restart!'},
-])
+    with ui.row():
+        with ui.column():
+            ui.markdown("## 🌱 **Hydroponic System Analysis**")
 
+        with ui.column():
+            ui.table(rows=[
+                {'INSTRUCTIONS': 'Upload images using ➕'},
+                {'INSTRUCTIONS': 'Save using ☁️'},
+                {'INSTRUCTIONS': 'Press button to run'},
+                {'INSTRUCTIONS': 'Reload to restart!'},
+            ])
     with ui.row():
         uploader =ui.upload(on_upload=save_uploaded_file, multiple=True)
     
