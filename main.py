@@ -353,20 +353,20 @@ def main_page():
             ui.markdown("## 🌱 **Hydroponic System Analysis**")
         with ui.column():
             ui.table(rows=[
-                {'CROP': 'Pick four points to crop all images (zip)'},
-                {'TIMELAPSE': 'Makes timelapse of images uploaded (.mov)'},
-                {'MASKS': 'Makes black and white versions of images (zip)'},
-                {'GROWTH CHARTS': 'Crop to single plant, upload masks of plants, makes chart (zip)'},
+                {'INSTRUCTIONS': 'Upload images using ➕'},
+                {'INSTRUCTIONS': 'Save using ☁️'},
+                {'INSTRUCTIONS': 'Press button to run'},
+                {'INSTRUCTIONS': 'Reload to restart!'},
             ])
     with ui.row():
         with ui.column():
             uploader =ui.upload(on_upload=save_uploaded_file, multiple=True)
         with ui.column():
-            ui.table(rows=[
-                {'': 'Upload images using ➕'},
-                {'INSTRUCTIONS': 'Save using ☁️'},
-                {'INSTRUCTIONS': 'Press button to run'},
-                {'INSTRUCTIONS': 'Reload to restart!'},
+             ui.table(rows=[
+                {'BUTTONS': 'CROP:Pick four points to crop all images (zip)'},
+                {'BUTTONS': 'TIMELAPSE: Makes timelapse of images uploaded (.mov)'},
+                {'BUTTONS': 'MASKS: Makes black and white versions of images (zip)'},
+                {'BUTTONS': 'GROWTH: Crop to single plant, upload masks of plants, makes chart (zip)'},
             ])
     update_file_list_display()
     with ui.row():
