@@ -349,26 +349,19 @@ async def process_growth_BAD():
 def main_page():
     global mask_uploader, run_analysis_button
     with ui.row():
-        with ui.column():
-            ui.markdown("## 🌱 **Hydroponic System Analysis**")
-        with ui.column():
-            ui.table(rows=[
-                {'INSTRUCTIONS': 'Upload images using ➕'},
-                {'INSTRUCTIONS': 'Save using ☁️'},
-                {'INSTRUCTIONS': 'Press button to run'},
-                {'INSTRUCTIONS': 'Reload to restart!'},
-            ])
+        ui.markdown("## 🌱 **Hydroponic System Analysis**")
+        ui.table(rows=[
+            {'INSTRUCTIONS': 'Upload images using ➕'},
+            {'INSTRUCTIONS': 'Save using ☁️'},
+            {'INSTRUCTIONS': 'Press button to run'},
+            {'INSTRUCTIONS': 'Reload to restart!'},
+        ])
     with ui.row():
-        with ui.column():
-            uploader =ui.upload(on_upload=save_uploaded_file, multiple=True)
-        with ui.column():
-            ui.label('CROP: Pick four points to crop all images (zip)')
-            with ui.row():    
-                ui.label('TIMELAPSE: Makes timelapse of images uploaded (.mov)')
-            with ui.row():    
-                ui.label('MASKS: Makes black and white versions of images (zip)')     
-            with ui.row():    
-                ui.label('GROWTH: Crop to single plant, upload masks of plants, makes chart (zip)')
+        ui.label('CROP: Pick four points to crop all images (zip)') 
+        ui.label('TIMELAPSE: Makes timelapse of images uploaded (.mov)')   
+        ui.label('MASKS: Makes black and white versions of images (zip)')      
+        ui.label('GROWTH: Crop to single plant, upload masks of plants, makes chart (zip)')
+        uploader =ui.upload(on_upload=save_uploaded_file, multiple=True)
     update_file_list_display()
     with ui.row():
         ui.button("Crop and Download ZIP", on_click=process_images)
