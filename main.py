@@ -356,20 +356,30 @@ def main_page():
             {'INSTRUCTIONS': 'Press button to run'},
             {'INSTRUCTIONS': 'Reload to restart!'},
         ])
-    with ui.row():
-        ui.label('CROP: Pick four points to crop all images (zip)') 
-        ui.label('TIMELAPSE: Makes timelapse of images uploaded (.mov)')   
-        ui.label('MASKS: Makes black and white versions of images (zip)')      
-        ui.label('GROWTH: Crop to single plant, upload masks of plants, makes chart (zip)')
+
+    with ui.row():  
         uploader =ui.upload(on_upload=save_uploaded_file, multiple=True)
     update_file_list_display()
+
     with ui.row():
+        ui.label('CROP: Pick four points to crop all images (zip)')
+    with ui.row():     
         ui.button("Crop and Download ZIP", on_click=process_images)
         ui.button("Reset Points", on_click=reset_points)
     uploader.on('finish', update_file_list_display)
-    ui.button("Create Timelapse", on_click=process_timelapse)
+
+    with ui.row():
+        ui.label('TIMELAPSE: Makes timelapse of images uploaded (.mov)') 
+    with ui.row():    
+        ui.button("Create Timelapse", on_click=process_timelapse)
+
+    with ui.row():
+        ui.label('MASKS: Makes black and white versions of images (zip)')  
     with ui.row():
         ui.button("Make Masks", on_click=process_masking)
+        
+    with ui.row():  
+        ui.label('GROWTH: Crop to single plant, upload masks of plants, makes chart (zip)')    
     with ui.row():
         ui.button("Run Growth Analysis", on_click=process_growth)
     # with ui.row():
