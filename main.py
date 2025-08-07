@@ -351,8 +351,8 @@ def main_page():
     with ui.row():
         ui.markdown("## 🌱 **Hydroponic System Analysis**")
         ui.table(rows=[
-            {'INSTRUCTIONS': 'Upload images using ➕'},
-            {'INSTRUCTIONS': 'Save using ☁️'},
+            {'INSTRUCTIONS': 'Add images using ➕'},
+            {'INSTRUCTIONS': 'Upload using ☁️'},
             {'INSTRUCTIONS': 'Press button to run'},
             {'INSTRUCTIONS': 'Reload to restart!'},
         ])
@@ -377,7 +377,7 @@ def main_page():
         ui.label('MASKS: Makes black and white versions of images (zip)')  
     with ui.row():
         ui.button("Make Masks", on_click=process_masking)
-        
+
     with ui.row():  
         ui.label('GROWTH: Crop to single plant, upload masks of plants, makes chart (zip)')    
     with ui.row():
