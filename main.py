@@ -351,7 +351,7 @@ def main_page():
     with ui.row():
         ui.markdown("## 🌱 **Hydroponic System Analysis**")
         ui.table(rows=[
-            {'INSTRUCTIONS': 'Add images using ➕ (50KB max)'},
+            {'INSTRUCTIONS': 'Add images using ➕ (70 MB max)'},
             {'INSTRUCTIONS': 'Upload using ☁️'},
             {'INSTRUCTIONS': 'Press button to run'},
             {'INSTRUCTIONS': 'Reload to restart!'},
