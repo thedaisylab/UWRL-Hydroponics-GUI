@@ -60,6 +60,7 @@ When you turn on the pi, simply type crontab -e in the terminal and
 add two crontabs, one first for webcam.sh (once per day at 12pm), and second for serviceRun.sh 
 (every Sunday at 1pm). Here are the ones I use:
 
-#0 12 * * *  /home/ciroh-uwrlphoto/webcam.sh 2>&1
-#0 13 * * 7  /home/ciroh-uwrlphoto/serviceRun.sh 
+0 12 * * *  /home/ciroh-uwrlphoto/webcam.sh 2>&1
+
+0 13 * * 7  /home/ciroh-uwrlphoto/serviceRun.sh 
 
