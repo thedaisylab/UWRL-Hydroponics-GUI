@@ -24,8 +24,9 @@ then,
 
 python3 -m venv envi (creates venv named envi, which is name I use)
 
-## Install dependencies
+## Install dependencies (camera and auth)
 
+sudo apt-get install fswebcam
 pip install google-auth google-auth-oauthlib google-api-python-client opencv-python numpy
 
 OR (depending on setup)
@@ -56,8 +57,9 @@ and executes serviceToDrive.py
 
 Use Cron to run all the Bash Scripts, timing them. 
 When you turn on the pi, simply type crontab -e in the terminal and 
-add two crontabs, one first for webcam.sh (once per day), and second for serviceRun.sh 
-(once per week)
+add two crontabs, one first for webcam.sh (once per day at 12pm), and second for serviceRun.sh 
+(every Sunday at 1pm). Here are the ones I use:
 
-
+#0 12 * * *  /home/ciroh-uwrlphoto/webcam.sh 2>&1
+#0 13 * * 7  /home/ciroh-uwrlphoto/serviceRun.sh 
 
