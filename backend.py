@@ -312,7 +312,7 @@ def run_mask(input_folder, output_zip_path):
     return zip_path
 
 
-
+##### GRAPHING #######
 def fill_holes2(binary_image):
     """Fill holes inside binary mask."""
     h, w = binary_image.shape[:2]
