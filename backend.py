@@ -312,47 +312,77 @@ def run_mask(input_folder, output_zip_path):
     return zip_path
 
 
+
 def fill_holes2(binary_image):
+    """Fill holes inside binary mask."""
     h, w = binary_image.shape[:2]
     mask = np.zeros((h+2, w+2), np.uint8)
-    cv2.floodFill(255*binary_image.astype(np.uint8), mask, (0,0), 255);
+
+    # ensure strictly binary 0/255 uint8
+    _, binary_image = cv2.threshold(binary_image, 127, 255, cv2.THRESH_BINARY)
+    binary_image = binary_image.astype(np.uint8)
+
+    cv2.floodFill(binary_image, mask, (0, 0), 255)
     mask = cv2.bitwise_not(mask)
     return mask
 
+
 def get_largest_blobs(binary_image, num_blobs):
-
-    #find connected components 
+    """Extract the N largest connected components from a binary mask."""
+    # --- safety: ensure grayscale, binary, and uint8 ---
+    if len(binary_image.shape) == 3:
+        binary_image = cv2.cvtColor(binary_image, cv2.COLOR_BGR2GRAY)
+    _, binary_image = cv2.threshold(binary_image, 127, 255, cv2.THRESH_BINARY)
     binary_image = binary_image.astype(np.uint8)
-    num_comps, output, stats, centroids = cv2.connectedComponentsWithStats(binary_image, connectivity=8)
-  
-    sizes = stats[1:, -1]; nb_components = num_comps - 1
-   
-    blob_indices = np.argsort(sizes)[::-1][0:num_blobs]
-  
-    aggregate_img = np.zeros((binary_image.shape[0], binary_image.shape[1],num_blobs))
 
-    centroid_list = centroids[blob_indices+1]
+    # find connected components
+    num_comps, output, stats, centroids = cv2.connectedComponentsWithStats(
+        binary_image, connectivity=8
+    )
+
+    sizes = stats[1:, -1]
+    nb_components = num_comps - 1
+
+    blob_indices = np.argsort(sizes)[::-1][0:num_blobs]
+
+    aggregate_img = np.zeros((binary_image.shape[0], binary_image.shape[1], num_blobs))
+    centroid_list = centroids[blob_indices + 1]
+
     for i in range(num_blobs):
-        img2 = np.zeros((output.shape))
-        img2[output == blob_indices[i]+1] = 255
+        img2 = np.zeros(output.shape, dtype=np.uint8)
+        img2[output == blob_indices[i] + 1] = 255
         img2 = fill_holes2(img2) == 255
-        aggregate_img[:,:,i] = img2[:-2,:-2]
+        aggregate_img[:, :, i] = img2[:-2, :-2]  # crop floodfill padding
+
     return aggregate_img, centroid_list
 
+
 def pixlCount(mask_folder):
+    """Count pixels in the largest blob of each mask in a folder."""
     pixel_count_list = []
-    file_list = sorted(glob.glob(os.path.join(mask_folder, '*'))) 
+    file_list = sorted(glob.glob(os.path.join(mask_folder, '*')))
+
     for file in file_list:
-        binary_image = cv2.imread(file, cv2.IMREAD_UNCHANGED)
-        aggregate_img, cen = get_largest_blobs(binary_image,1)
+        # --- load mask in grayscale (1 channel) ---
+        binary_image = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+
+        # --- force binary 0/255 ---
+        _, binary_image = cv2.threshold(binary_image, 127, 255, cv2.THRESH_BINARY)
+        binary_image = binary_image.astype(np.uint8)
+
+        aggregate_img, cen = get_largest_blobs(binary_image, 1)
         per_blob_counts = np.count_nonzero(aggregate_img[:, :, 0])
         pixel_count_list.append(per_blob_counts)
-    return pixel_count_list    
+
+    return pixel_count_list
+
 
 def graph(mask_folder, pixels, output_path):
-    file_list = sorted(glob.glob(os.path.join(mask_folder, '*'))) 
-    file1 = Path(file_list[0]).stem 
-    lastfile = Path(file_list[-1]).stem 
+    """Plot growth curve from pixel counts and save as PNG."""
+    file_list = sorted(glob.glob(os.path.join(mask_folder, '*')))
+    file1 = Path(file_list[0]).stem
+    lastfile = Path(file_list[-1]).stem
+
     days = [f'Day {i+1}' for i in range(len(pixels))]
     plt.figure(figsize=(10, 5))
     plt.plot(days, pixels, marker='o')
@@ -362,12 +392,13 @@ def graph(mask_folder, pixels, output_path):
     plt.grid(True)
     plt.tight_layout()
 
-    # Save the figure
     output_path = Path(output_path)
     plt.savefig(output_path)
-    plt.close()  # Close the figure to free memory
+    plt.close()
+
 
 def run_graph(input_folder, output_zip_base):
+    """Run pixel counting + graphing, zip results, and return path."""
     output_folder = tempfile.mkdtemp(prefix="graphs_")
     os.makedirs(output_folder, exist_ok=True)
 
@@ -381,6 +412,6 @@ def run_graph(input_folder, output_zip_base):
             fpath = os.path.join(output_folder, fname)
             zipf.write(fpath, arcname=fname)
 
-    ui.notify(f"✅ Masking complete! Zip saved to: {zip_path}")
+    ui.notify(f"✅ Graphing complete! Zip saved to: {zip_path}")
     shutil.rmtree(output_folder)
     return zip_path

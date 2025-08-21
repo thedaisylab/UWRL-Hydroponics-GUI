@@ -4,7 +4,6 @@ import os
 import tempfile
 import shutil
 import zipfile
-import cv2
 from backend import *
 from PIL import Image
 import threading
